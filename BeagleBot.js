@@ -1,7 +1,9 @@
+var express = require('express')
+var http = require('https')
 var telegram = require('telegram-bot-api')
 
 var api = new telegram({
-    token: '3xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx8',
+    token: '3xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx8',
     updates: {
         enabled: true
     }
@@ -22,16 +24,14 @@ api.on('message', function(message) {
             if(err)
             {
                 console.log(err)
+                api.sendMessage({
+                    chat_id: message.chat.id,
+                    text: 'fail'
+                })
             }
             if(stdout)
             {
                 console.log(stdout)
-                /*
-                api.sendMessage({
-                    chat_id: message.chat.id,
-                    text: stdout
-                })
-                */
                 api.sendPhoto({
                     chat_id: message.chat.id,
                     caption: 'webcam image',
@@ -45,4 +45,17 @@ api.on('message', function(message) {
             }
         })
     }
+})
+
+var app = express();
+var server = require('http').Server(app);
+
+server.listen(8082, function(err) {
+    console.log('Running server on port 8082')
+})
+
+app.get('/', function(req, res) {
+    res.writeHead(200,{'Content-Type':'text/plain'})
+    res.end('hello world')
+    //console.log(text);
 })
