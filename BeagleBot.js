@@ -3,7 +3,7 @@ var http = require('https')
 var telegram = require('telegram-bot-api')
 
 var api = new telegram({
-    token: '3xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx8',
+    token: '32xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx8',
     updates: {
         enabled: true
     }
@@ -20,19 +20,22 @@ api.on('message', function(message) {
     if (message.text.substring(0, 4).toLowerCase() == 'take') {
         var exec = require('child_process').exec
         var filename = "webcam.py"
-        exec("python" + " " + filename,function(err,stdout,stderr){
-            if(err)
-            {
-                console.log(err)
-                api.sendMessage({
-                    chat_id: message.chat.id,
-                    text: 'fail'
-                })
-            }
-            if(stdout)
-            {
-                console.log(stdout)
-                api.sendPhoto({
+        var child = exec('python' + ' ' + filename)
+        
+        child.stdout.on('data', function(data) {
+            console.log('stdout: ' + data)
+        });
+        child.stderr.on('data', function(data) {
+            console.log('stdout: ' + data)
+        });
+        child.on('close', function(code) {
+            console.log('closing code: ' + code)
+            api.sendMessage({
+                chat_id: message.chat.id,
+                text: 'wait a minute'
+            })
+            
+            api.sendPhoto({
                     chat_id: message.chat.id,
                     caption: 'webcam image',
                     // you can also send file_id here as string (as described in telegram bot api documentation)
@@ -41,8 +44,9 @@ api.on('message', function(message) {
                 .then(function(data)
                 {
                     //console.log(util.inspect(data, false, null));
+                }).catch(function(err) {
+                    console.log('sendpotoerr: ' + err)
                 })
-            }
         })
     }
 })
